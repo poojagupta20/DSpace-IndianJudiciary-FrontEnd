@@ -1,0 +1,244 @@
+.container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+  }
+  
+  .heading {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .divider {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 15px 0;
+  }
+  
+  .date-filter-container {
+    margin-bottom: 30px;
+  }
+  
+  .date-label {
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  
+  .date-range {
+    display: flex;
+    align-items: center;
+  }
+  input.form-control {
+    border: 1px solid #ced4da !important;
+  }
+  
+  .form-select{
+    border: 1px solid #ced4da !important;
+  }
+  .date-input-container {
+    position: relative;
+  }
+  
+  .date-input-container label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    color: #666;
+  }
+  
+  .date-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .date-input-wrapper input {
+    width: 150px;
+    padding: 8px 30px 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  
+  .calendar-button {
+    position: absolute;
+    right: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .date-separator {
+    margin: 0 15px;
+    font-weight: 500;
+    font-size: 1.2rem;
+  }
+  
+  .calendar-popup {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    width: 280px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+  }
+  
+  .calendar-nav {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .nav-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    font-size: 1.2rem;
+  }
+  
+  .weekday-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 10px 0;
+    color: #666;
+  }
+  
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    padding: 0 5px 10px;
+  }
+  
+  .day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    width: 30px;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .day:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .day.selected {
+    background-color: #1976d2;
+    color: white;
+  }
+  
+  .prev-month, .next-month {
+    color: #ccc;
+  }
+  
+  .calendar-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-top: 1px solid #eee;
+  }
+  
+  .clear-button, .today-button {
+    background: none;
+    border: none;
+    color: #1976d2;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .search-container {
+    margin-bottom: 30px;
+  }
+  
+  .search-label {
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  
+  .search-controls {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .sort-container, .results-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sort-container label, .results-container label {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    color: #666;
+  }
+  
+  .sort-select, .results-select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+    font-size: 0.9rem;
+  }
+  
+  .showing-results {
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .results-table th {
+    background-color: #f5f5f5;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.85rem;
+  }
+  
+  .results-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+  }
+  
+  .results-table tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .case-link {
+    color: #337ab7;
+    text-decoration: none;
+  }
+  
+  .case-link:hover {
+    text-decoration: underline;
+  }

@@ -1,0 +1,49 @@
+:host {
+  display: block;
+  margin: 2rem 0;
+}
+
+.search-results {
+  margin-top: 2rem;
+}
+
+.dropdown-menu {
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  background: #f4f4f4;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+a {
+  text-decoration: none;
+  color: blue;
+  margin-left: 10px;
+}
+
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+}
+
+.table th {
+  font-weight: bold;
+  background-color: #f8f9fa;
+}
+

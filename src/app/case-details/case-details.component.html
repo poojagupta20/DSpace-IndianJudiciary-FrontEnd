@@ -1,0 +1,171 @@
+<!-- Loader
+<div *ngIf="loading" class="text-center my-5">
+  <p class="h5">Longer loading... please click reload below.</p>
+  <button class="btn btn-outline-secondary mt-3" disabled>
+    Reload
+  </button>
+</div>
+
+
+<div *ngIf="!loading" class="case-details container">
+  <h3 class="text-center">{{ getMetadataValue('dc.casetype') }}</h3>
+
+  <div class="col" *ngFor="let key of visibleKeys">
+    <strong>{{ customMetadataLabels[key] || key }}:</strong> {{ getMetadataValue(key) }}
+  </div>
+
+  <button class="btn btn-sm btn-outline-primary my-3" (click)="showMore = !showMore">
+    {{ showMore ? 'Collapse' : 'Expand' }}
+  </button>
+
+  <div *ngIf="showMore">
+    <div class="row mb-2" *ngFor="let meta of extraMetadata">
+      <div class="col"><strong>{{ meta.label }}:</strong> {{ meta.value }}</div>
+    </div>
+  </div>
+
+  <hr />
+  <h4>Files</h4>
+  <div *ngFor="let file of paginatedAttachments()" class="file-row row mb-2">
+    <div class="col-md-4"><strong>{{ file.name }}</strong></div>
+    <div class="col-md-2">{{ (file.size / 1024 / 1024).toFixed(2) }} MB</div>
+    <div class="col-md-2">{{ file.format }}</div>
+    <div class="col-md-4">
+      <a (click)="viewFile(file)" style="cursor:pointer;">View</a>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between mt-3">
+    <button class="btn btn-sm btn-secondary" [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="btn btn-sm btn-secondary" [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+  </div>
+</div> -->
+
+<!-- Loader -->
+<!-- <div *ngIf="loading" class="text-center my-5">
+  <p class="h5">Loading case details...</p>
+  <div class="spinner-border text-primary my-3" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+ 
+<div *ngIf="loadError" class="text-center my-5">
+  <p class="h5">Failed to load case details. Please try again.</p>
+  <button class="btn btn-outline-secondary mt-3" (click)="reloadData()">
+    Reload
+  </button>
+</div> 
+<div *ngIf="!loading && !loadError" class="case-details container">
+  <h3 class="text-center">{{ getMetadataValue('dc.casetype') }}</h3>
+
+  <div class="col" *ngFor="let key of visibleKeys">
+    <strong>{{ customMetadataLabels[key] || key }}:</strong> {{ getMetadataValue(key) }}
+  </div>
+
+  <button class="btn btn-sm btn-outline-primary my-3" (click)="showMore = !showMore">
+    {{ showMore ? 'Collapse' : 'Expand' }}
+  </button>
+
+  <div *ngIf="showMore">
+    <div class="row mb-2" *ngFor="let meta of extraMetadata">
+      <div class="col"><strong>{{ meta.label }}:</strong> {{ meta.value }}</div>
+    </div>
+  </div>
+
+  <hr />
+  <h4>Files</h4>
+  <div *ngFor="let file of paginatedAttachments()" class="file-row row mb-2">
+    <div class="col-md-4"><strong>{{ file.name }}</strong></div>
+    <div class="col-md-2">{{ file.sizeBytes ? (file.sizeBytes / 1024 | number:'1.0-2') + ' KB' : 'Size Unknown' }}</div>
+    <div class="col-md-2">{{ file.format }}</div>
+    <div class="col-md-4">
+      <a (click)="viewFile(file)" style="cursor:pointer;">View</a>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between mt-3" *ngIf="attachments.length > 0">
+    <button class="btn btn-sm btn-secondary" [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="btn btn-sm btn-secondary" [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+  </div>
+  
+  <div *ngIf="attachments.length === 0" class="alert alert-info mt-3">
+    No files available for this case.
+  </div>
+</div> -->
+
+
+
+
+
+
+<!-- new code  -->
+
+<!-- Loader -->
+<div *ngIf="loading" class="text-center my-5">
+  <p class="h5">Loading case details...</p>
+  <div class="spinner-border text-primary my-3" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<!-- Error state with reload button -->
+<div *ngIf="loadError" class="text-center my-5">
+  <p class="h5">Failed to load case details. Please try again.</p>
+  <button class="btn btn-outline-secondary mt-3" (click)="reloadData()">
+    Reload
+  </button>
+</div>
+
+<!-- Actual case details -->
+<div *ngIf="!loading && !loadError" class="case-details container">
+  <h3 class="text-center">{{ getMetadataValue('dc.casetype') }}</h3>
+
+  <button class="btn btn-primary" (click)="navigateToEdit()">
+    <i class="fas fa-edit"></i> Edit Metadata
+  </button>
+  <div class="col" *ngFor="let key of visibleKeys">
+    <strong>{{ customMetadataLabels[key] || key }}:</strong> {{ getMetadataValue(key) }}
+  </div>
+
+  <button class="btn btn-sm btn-outline-primary my-3" (click)="showMore = !showMore">
+    {{ showMore ? 'Collapse' : 'Expand' }}
+  </button>
+
+  <div *ngIf="showMore">
+    <div class="row mb-2" *ngFor="let meta of extraMetadata">
+      <div class="col"><strong>{{ meta.label }}:</strong> {{ meta.value }}</div>
+    </div>
+  </div>
+
+  <hr />
+  <h4>Files</h4>
+  
+  <!-- Loading indicator for permissions check -->
+  <div *ngIf="checkingPermissions" class="text-center my-3">
+    <p>Checking file permissions...</p>
+    <div class="spinner-border spinner-border-sm text-secondary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngFor="let file of paginatedAttachments()" class="file-row row mb-2">
+    <div class="col-md-4"><strong>{{ file.name }}</strong></div>
+    <div class="col-md-2">{{ file.sizeBytes ? (file.sizeBytes / 1024 | number:'1.0-2') + ' KB' : 'Size Unknown' }}</div>
+    <div class="col-md-2">{{ file.format }}</div>
+    <div class="col-md-4">
+      <a (click)="viewFile(file)" style="cursor:pointer;">View</a>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between mt-3" *ngIf="filteredAttachments.length > 0">
+    <button class="btn btn-sm btn-secondary" [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="btn btn-sm btn-secondary" [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+  </div>
+  
+  <div *ngIf="filteredAttachments.length === 0 && !checkingPermissions" class="alert alert-info mt-3">
+    No accessible files available for this case.
+  </div>
+</div>

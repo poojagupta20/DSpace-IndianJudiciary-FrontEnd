@@ -1,0 +1,215 @@
+<div>
+  <ds-form *ngIf="formModel"
+           #formRef="formComponent"
+           [formId]="formId"
+           [formModel]="formModel"
+           [displaySubmit]="false"
+           [displayCancel]="false"></ds-form>
+  <div class="container-fluid">
+
+    <label for="ResourcePolicyObject">{{ 'resource-policies.form.eperson-group-list.label' | translate }}</label>
+    <input id="ResourcePolicyObject" class="form-control mb-3" type="text" [value]="resourcePolicyTargetName$ | async">
+
+    <!-- Page Restriction Inputs -->
+    <div class="form-group row">
+      <div class="col-md-6">
+        <label for="pageStart">Page Start</label>
+        <input
+        id="pageStart"
+        name="pageStart"
+        type="number"
+        min="1"
+        class="form-control"
+        [(ngModel)]="pageStart"
+        placeholder="Enter start page"
+        required>
+      </div>
+
+      <div class="col-md-6">
+        <label for="pageEnd">Page End</label>
+        <input
+        id="pageEnd"
+        name="pageEnd"
+        type="number"
+        min="1"
+        class="form-control"
+        [(ngModel)]="pageEnd"
+        placeholder="Enter end page"
+        required>
+      </div>
+    </div>
+
+    <!-- Time Selection Inputs -->
+    <div class="form-group row mt-3">
+      <div class="col-md-6">
+        <label for="startTime">Start Time</label>
+        <input
+          id="startTime"
+          name="startTime"
+          type="time"
+          class="form-control"
+          [(ngModel)]="startTime"
+          placeholder="HH:MM">
+        <small class="form-text text-muted">Time for start date (24-hour format)</small>
+      </div>
+
+      <div class="col-md-6">
+        <label for="endTime">End Time</label>
+        <input
+          id="endTime"
+          name="endTime"
+          type="time"
+          class="form-control"
+          [(ngModel)]="endTime"
+          placeholder="HH:MM">
+        <small class="form-text text-muted">Time for end date (24-hour format)</small>
+      </div>
+    </div>
+
+    <!-- Print and Download Restriction Inputs -->
+    <div class="form-group row mt-3">
+      <div class="col-md-6">
+        <label class="form-label">Print</label>
+        <div class="d-flex">
+          <div class="form-check me-3">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="print"
+              id="printYes"
+              [value]="true"
+              [(ngModel)]="print"
+              (change)="updatePrint(true)">
+            <label class="form-check-label" for="printYes">
+              Yes
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="print"
+              id="printNo"
+              [value]="false"
+              [(ngModel)]="print"
+              (change)="updatePrint(false)">
+            <label class="form-check-label" for="printNo">
+              No
+            </label>
+          </div>
+        </div>
+        <small class="form-text text-muted">Restrict printing of this item</small>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Download</label>
+        <div class="d-flex">
+          <div class="form-check me-3">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="download"
+              id="downloadYes"
+              [value]="true"
+              [(ngModel)]="download"
+              (change)="updateDownload(true)">
+            <label class="form-check-label" for="downloadYes">
+              Yes
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="download"
+              id="downloadNo"
+              [value]="false"
+              [(ngModel)]="download"
+              (change)="updateDownload(false)">
+            <label class="form-check-label" for="downloadNo">
+              No
+            </label>
+          </div>
+        </div>
+        <small class="form-text text-muted">Restrict downloading of this item</small>
+      </div>
+    </div>
+
+    <!-- Debug info to verify values -->
+    <div class="mt-2 p-2 bg-light border rounded">
+      <div><strong>Current Values:</strong></div>
+      <div>Print: {{print ? 'Yes' : 'No'}}</div>
+      <div>Download: {{download ? 'Yes' : 'No'}}</div>
+    </div>
+
+    <!-- Display validation errors -->
+    <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+      <p><strong>{{ 'resource-policies.form.validation-errors.header' | translate }}</strong></p>
+      <ul>
+        <li *ngFor="let error of validationErrors">{{ error | translate }}</li>
+      </ul>
+    </div>
+
+    <!-- User/Group Selection Tabs -->
+    <ul ngbNav #nav="ngbNav" class="nav-pills" [(activeId)]="navActiveId" (navChange)="onNavChange($event)">
+      <li [ngbNavItem]="'eperson'" role="presentation">
+        <a ngbNavLink>{{ 'resource-policies.form.eperson-group-list.tab.eperson' | translate }}</a>
+        <ng-template ngbNavContent>
+          <ds-eperson-group-list (select)="updateObjectSelected($event, true)"></ds-eperson-group-list>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="'group'" role="presentation">
+        <a ngbNavLink>{{ 'resource-policies.form.eperson-group-list.tab.group' | translate }}</a>
+        <ng-template ngbNavContent>
+          <ds-eperson-group-list [isListOfEPerson]="false" (select)="updateObjectSelected($event, false)"></ds-eperson-group-list>
+        </ng-template>
+      </li>
+    </ul>
+
+    <div [ngbNavOutlet]="nav"></div>
+
+    <!-- Submit Buttons -->
+    <hr />
+    <div class="mb-3 row">
+      <div class="col text-end">
+        <button type="reset"
+                class="btn btn-default"
+                [dsBtnDisabled]="(isProcessing | async)"
+                (click)="onReset()">{{ 'form.cancel' | translate }}</button>
+        <button type="button"
+                class="btn btn-primary"
+                [dsBtnDisabled]="(isFormValid() | async) !== true || (isProcessing | async)"
+                (click)="onSubmit()">
+          <span *ngIf="(isProcessing | async)">
+            <i class="fas fa-circle-notch fa-spin"></i> {{ 'submission.workflow.tasks.generic.processing' | translate }}
+          </span>
+          <span *ngIf="(isProcessing | async) !== true">
+            {{ 'form.submit' | translate }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{ 'resource-policies.form.eperson-group-list.modal.header' | translate }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.close()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="d-flex flex-row">
+      <div class="me-3">
+        <i class="fas fa-info-circle fa-2x text-info"></i>
+      </div>
+      <div>
+        <p [innerHTML]="(navActiveId === 'eperson' ? 'resource-policies.form.eperson-group-list.modal.text1.toGroup' :
+         'resource-policies.form.eperson-group-list.modal.text1.toEPerson') | translate" class="fw-bold"></p>
+        <p [innerHTML]="'resource-policies.form.eperson-group-list.modal.text2' | translate"></p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.close()">{{ 'resource-policies.form.eperson-group-list.modal.close' | translate }}</button>
+  </div>
+</ng-template>

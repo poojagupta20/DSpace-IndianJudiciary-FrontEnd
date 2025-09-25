@@ -1,0 +1,159 @@
+@import '../../../../../../../styles/variables';
+
+.item-list-supervision {
+    a {
+        cursor: pointer;
+    }
+}
+
+.case-info-container {
+    margin-bottom: 0.5rem;
+    
+    .case-info-link, .case-info-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      text-decoration: none;
+      
+      &:hover {
+        .case-type, .case-number, .case-year {
+          color: var(--ds-theme-primary);
+        }
+      }
+    }
+    
+    // First row: Badges
+    .badges-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      
+      .badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+      }
+      
+      .case-file-badge {
+        background-color: #14b8a6; // Teal color
+        color: white;
+      }
+      
+      .pending-badge {
+        background-color: #22c55e; // Green color
+        color: white;
+      }
+    }
+    
+    // Second row: Case details
+    .case-details-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      font-size: 1.1rem;
+      
+      .case-type {
+        font-weight: 600;
+        color: var(--bs-primary);
+      }
+      
+      .case-number {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #1f2937; // Dark gray
+      }
+      
+      .case-year {
+        color: var(--bs-secondary);
+        font-weight: 500;
+      }
+      
+      .separator {
+        color: var(--bs-secondary);
+        font-weight: 300;
+        margin: 0 0.1rem;
+      }
+    }
+    
+    // Third row: Parties
+    .parties-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 1rem;
+      color: #374151; // Gray-700
+      
+      .petitioner-name {
+        font-weight: 500;
+      }
+      
+      .vs-separator {
+        font-weight: 600;
+        color: #dc2626; // Red color for "Vs"
+        text-transform: uppercase;
+        font-size: 0.9rem;
+      }
+      
+      .respondent-name {
+        font-weight: 500;
+      }
+    }
+  }
+  
+  /* Animation classes */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideIn {
+    from { 
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    .case-info-container {
+      .badges-row {
+        flex-wrap: wrap;
+      }
+      
+      .case-details-row {
+        font-size: 1rem;
+        
+        .case-number {
+          font-size: 1.1rem;
+        }
+      }
+      
+      .parties-row {
+        font-size: 0.9rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        
+        .vs-separator {
+          align-self: center;
+        }
+      }
+    }
+  }

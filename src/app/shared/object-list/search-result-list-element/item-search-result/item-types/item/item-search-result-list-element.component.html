@@ -1,0 +1,154 @@
+<!-- <div class="row">
+  <div *ngIf="showThumbnails" class="col-3 col-md-2">
+    <a *ngIf="linkType !== linkTypes.None" [target]="(linkType === linkTypes.ExternalLink) ? '_blank' : '_self'" [attr.rel]="(linkType === linkTypes.ExternalLink) ? 'noopener noreferrer' : null"
+       [routerLink]="[itemPageRoute]" class="dont-break-out">
+    <ds-thumbnail [thumbnail]="dso?.thumbnail | async" [limitWidth]="true">
+    </ds-thumbnail>
+    </a>
+    <span *ngIf="linkType === linkTypes.None" class="dont-break-out">
+    <ds-thumbnail [thumbnail]="dso?.thumbnail | async" [limitWidth]="true">
+    </ds-thumbnail>
+    </span>
+  </div>
+  <div [ngClass]="showThumbnails ? 'col-9' : 'col-md-12'">
+    <div class="d-flex">
+      <ds-badges *ngIf="showLabel" [object]="dso" [context]="context" [showAccessStatus]="true"></ds-badges>
+    </div>
+
+    <ds-truncatable [id]="dso.id" *ngIf="object !== undefined && object !== null">
+      <a *ngIf="linkType !== linkTypes.None" [target]="(linkType === linkTypes.ExternalLink) ? '_blank' : '_self'" [attr.rel]="(linkType === linkTypes.ExternalLink) ? 'noopener noreferrer' : null"
+         [routerLink]="[itemPageRoute]" class="lead item-list-title dont-break-out"
+         [innerHTML]="dsoTitle"></a>
+      <span *ngIf="linkType === linkTypes.None" class="lead item-list-title dont-break-out"
+            [innerHTML]="dsoTitle"></span>
+      <span class="text-muted">
+        <ds-truncatable-part [id]="dso.id" [minLines]="1">
+          <ng-container *ngIf="dso.firstMetadataValue('dc.publisher') || dso.firstMetadataValue('dc.date.issued')">
+            (<span *ngIf="dso.firstMetadataValue('dc.publisher')" class="item-list-publisher" [innerHTML]="firstMetadataValue('dc.publisher')"></span>
+            <span *ngIf="dso.firstMetadataValue('dc.publisher') && dso.firstMetadataValue('dc.date.issued')">, </span>
+          <span *ngIf="dso.firstMetadataValue('dc.date.issued')" class="item-list-date" [innerHTML]="firstMetadataValue('dc.date.issued')"></span>)
+          </ng-container>
+          <span *ngIf="dso.allMetadata(['dc.contributor.author', 'dc.creator', 'dc.contributor.*']).length > 0" class="item-list-authors">
+            <span *ngFor="let author of allMetadataValues(['dc.contributor.author', 'dc.creator', 'dc.contributor.*']); let last=last;">
+                <span [innerHTML]="author"><span [innerHTML]="author"></span></span>
+                <span *ngIf="!last">; </span>
+            </span>
+          </span>
+        </ds-truncatable-part>
+      </span>
+      <div *ngIf="dso.firstMetadataValue('dc.description.abstract')" class="item-list-abstract">
+        <ds-truncatable-part [id]="dso.id" [minLines]="3"><span
+          [innerHTML]="firstMetadataValue('dc.description.abstract')"></span>
+        </ds-truncatable-part>
+      </div>
+    </ds-truncatable>
+  </div>
+</div> -->
+
+
+<ds-truncatable [id]="dso.id" *ngIf="object !== undefined && object !== null">
+  <!-- Case information with separators -->
+  <div class="case-info-container" @caseInfoAnimation>
+    <a *ngIf="linkType !== linkTypes.None" 
+       [target]="(linkType === linkTypes.ExternalLink) ? '_blank' : '_self'" 
+       [attr.rel]="(linkType === linkTypes.ExternalLink) ? 'noopener noreferrer' : null"
+       [routerLink]="[itemPageRoute]" 
+       class="case-info-link dont-break-out">
+      
+      <!-- First Line: Static Badges -->
+      <div class="badges-row">
+        <span class="badge case-file-badge">Case File</span>
+        <span class="badge pending-badge">Pending</span>
+      </div>
+      
+      <!-- Second Line: Case Type, Number, Year -->
+      <div class="case-details-row">
+        <!-- Case Type -->
+        <span *ngIf="dso.firstMetadataValue('dc.casetype')" 
+              class="case-type animate-fade-in"
+              [innerHTML]="firstMetadataValue('dc.casetype')"></span>
+        
+        <!-- Separator after case type if both case type and case number exist -->
+        <span *ngIf="dso.firstMetadataValue('dc.casetype') && dso.firstMetadataValue('dc.title')" 
+              class="separator">/</span>
+        
+        <!-- Case Number -->
+        <span *ngIf="dso.firstMetadataValue('dc.title')" 
+              class="case-number animate-slide-in"
+              [innerHTML]="firstMetadataValue('dc.title')"></span>
+        
+        <!-- Separator after case number if both case number and case year exist -->
+        <span *ngIf="dso.firstMetadataValue('dc.title') && dso.firstMetadataValue('dc.caseyear')" 
+              class="separator">/</span>
+        
+        <!-- Case Year -->
+        <span *ngIf="dso.firstMetadataValue('dc.caseyear')" 
+              class="case-year animate-fade-in"
+              [innerHTML]="firstMetadataValue('dc.caseyear')"></span>
+      </div>
+      
+      <!-- Third Line: Petitioner Vs Respondent -->
+      <div class="parties-row" *ngIf="getPetitionerName() || getRespondentName()">
+        <span *ngIf="getPetitionerName()" 
+              class="petitioner-name"
+              [innerHTML]="getPetitionerName()"></span>
+        
+        <span *ngIf="getPetitionerName() && getRespondentName()" 
+              class="vs-separator">Vs</span>
+        
+        <span *ngIf="getRespondentName()" 
+              class="respondent-name"
+              [innerHTML]="getRespondentName()"></span>
+      </div>
+    </a>
+    
+    <!-- Same display for non-link version -->
+    <div *ngIf="linkType === linkTypes.None" class="case-info-text dont-break-out">
+      <!-- First Line: Static Badges -->
+      <div class="badges-row">
+        <span class="badge case-file-badge">Case File</span>
+        <span class="badge pending-badge">Pending</span>
+      </div>
+      
+      <!-- Second Line: Case Type, Number, Year -->
+      <div class="case-details-row">
+        <!-- Case Type -->
+        <span *ngIf="dso.firstMetadataValue('dc.casetype')" 
+              class="case-type animate-fade-in"
+              [innerHTML]="firstMetadataValue('dc.casetype')"></span>
+        
+        <!-- Separator after case type if both case type and case number exist -->
+        <span *ngIf="dso.firstMetadataValue('dc.casetype') && dso.firstMetadataValue('dc.title')" 
+              class="separator">/</span>
+        
+        <!-- Case Number -->
+        <span *ngIf="dso.firstMetadataValue('dc.title')" 
+              class="case-number animate-slide-in"
+              [innerHTML]="firstMetadataValue('dc.title')"></span>
+        
+        <!-- Separator after case number if both case number and case year exist -->
+        <span *ngIf="dso.firstMetadataValue('dc.title') && dso.firstMetadataValue('dc.caseyear')" 
+              class="separator">/</span>
+        
+        <!-- Case Year -->
+        <span *ngIf="dso.firstMetadataValue('dc.caseyear')" 
+              class="case-year animate-fade-in"
+              [innerHTML]="firstMetadataValue('dc.caseyear')"></span>
+      </div>
+      
+      <!-- Third Line: Petitioner Vs Respondent -->
+      <div class="parties-row" *ngIf="getPetitionerName() || getRespondentName()">
+        <span *ngIf="getPetitionerName()" 
+              class="petitioner-name"
+              [innerHTML]="getPetitionerName()"></span>
+        
+        <span *ngIf="getPetitionerName() && getRespondentName()" 
+              class="vs-separator">Vs</span>
+        
+        <span *ngIf="getRespondentName()" 
+              class="respondent-name"
+              [innerHTML]="getRespondentName()"></span>
+      </div>
+    </div>
+  </div>
+</ds-truncatable>

@@ -1,0 +1,160 @@
+.repository-tree-container {
+  padding: 20px 0; // Keep vertical padding but remove horizontal padding
+  font-family: Arial, sans-serif;
+  max-width: 1200px; // Or whatever width matches your logo container
+  margin: 0 auto; // Center the container
+}
+
+// If you need specific left/right margins to match exactly with your logo
+.repository-tree-container {
+  margin-left: 15px; // Adjust this value to match your logo's left margin
+  margin-right: 15px; // Adjust this value to match your logo's right margin
+}
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tree-view {
+  margin-top: 20px;
+}
+
+.tree-root, .tree-children {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.tree-children {
+  padding-left: 20px;
+  margin-top: 5px;
+}
+
+.tree-node {
+  margin: 5px 0;
+}
+
+.node-content {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.toggle-icon {
+  width: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.node-icon {
+  margin-right: 8px;
+  width: 20px;
+  text-align: center;
+}
+
+.node-name {
+  flex-grow: 1;
+  cursor: pointer;
+  color: #0056b3;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.node-loading-inline {
+  margin-left: 10px;
+}
+
+.node-community {
+  font-weight: bold;
+}
+
+.node-subcommunity {
+  font-weight: bold;
+  color: #2c5282;
+}
+
+.node-collection {
+  color: #2b6cb0;
+}
+
+.node-item {
+  color: #4a5568;
+  font-size: 0.95em;
+}
+
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 40px 0;
+  
+  .loading-text {
+    margin-top: 10px;
+    color: #6c757d;
+  }
+}
+
+.pagination-info {
+  margin-left: 40px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.load-more-container {
+  margin: 10px 0;
+  padding-left: 40px;
+}
+
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Animation for loading spinners
+.spinner-border {
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .repository-tree-container {
+    padding: 10px;
+  }
+  
+  .tree-children {
+    padding-left: 15px;
+  }
+  
+  .pagination-info {
+    margin-left: 30px;
+  }
+  
+  .load-more-container {
+    padding-left: 30px;
+  }
+}
+
+
+ 
+
+// Rest of your existing styles...

@@ -1,0 +1,99 @@
+<!-- <div>hiiiii</div> -->
+
+<div class="container">
+  <h2 class="mt-3 mb-3">By Free Text</h2>
+  <hr class="mb-4">
+  
+  <div class="search-bar mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-10">
+        <label for="description" class="form-label">Description</label>
+        <input type="text" class="form-control" id="description" name="description">
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-secondary float-end" type="button">
+          <i class="fas fa-search"></i> Search
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="settings-section mb-4">
+    <h5 class="mb-3">Settings</h5>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="sortBy" class="form-label">Sort By</label>
+          <select class="form-select" id="sortBy"  >
+            <option value="caseNumber">Case Number</option>
+            <option value="caseYear">Case Year</option>
+            <option value="caseType">Case Type</option>
+            <option value="district">District</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="sortOrder" class="form-label">Sort Order</label>
+          <select class="form-select" id="sortOrder"  >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="resultsPerPage" class="form-label">Results per page</label>
+          <select class="form-select" id="resultsPerPage" >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="search-results">
+    <h3 class="mb-3">Search Results</h3>
+    <p class="text-muted"> </p>
+    
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>CASE NUMBER</th>
+            <th>CASE YEAR</th>
+            <th>CASE TYPE</th>
+            <th>DISTRICT</th>
+            <th>JUDGE NAME</th>
+            <th>FIRST PETITIONER</th>
+            <th>FIRST RESPONDENT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- <tr *ngFor="let case of cases">
+            <td><a [routerLink]="['/cases', case.caseNumber]">{{ case.caseNumber }}</a></td>
+            <td>{{ case.caseYear }}</td>
+            <td>{{ case.caseType }}</td>
+            <td>{{ case.district }}</td>
+            <td>{{ case.judgeName }}</td>
+            <td>{{ case.firstPetitioner }}</td>
+            <td>{{ case.firstRespondent }}</td>
+          </tr> -->
+          <!-- Example data row to match the screenshot -->
+          <tr>
+            <td><a href="free-text-search">84</a></td>
+            <td>2005</td>
+            <td>C.S.</td>
+            <td>Keonjhar</td>
+            <td>Sub Judge, Keonjhar</td>
+            <td>ABANTI GIRI AND ANOTHER</td>
+            <td>RATNAKAR GIRI AND OTHERS</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+.login-logo {
+  height: var(--ds-login-logo-height);
+  width: var(--ds-login-logo-width);
+}
+
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100vh;
+}
+
+.login-container {
+  width: 100%;
+  height: 100%;
+  background-image: url('https://images.odishatv.in/uploadimage/library/16_9/16_9_5/Orissa_HC_1708740976.jpeg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* Reduced overall height by adding a max-height */
+  max-height: 100vh;
+}
+
+
+.login-form-wrapper {
+  width: 100%;
+  max-width: 400px; /* Slightly reduced from 450px */
+  background-color: rgba(255, 255, 255, 0.65);
+  border-radius: 8px;
+  /* Reduced padding to decrease height */
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.login-form-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+/* Court seal section removed as requested */
+
+.court-title {
+  margin-bottom: 15px; /* Reduced from 20px */
+  text-align: center;
+  
+  h2 {
+    color: #005580;
+    font-size: 1.4rem; /* Slightly reduced */
+    margin-bottom: 3px; /* Reduced from 5px */
+    font-weight: 600;
+  }
+  
+  p {
+    color: #005580;
+    font-size: 1rem; /* Slightly reduced */
+    margin: 0;
+  }
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 40, 60, 0.8);
+  color: white;
+  text-align: center;
+  padding: 8px 0; /* Reduced from 10px */
+  
+  p {
+    margin: 0;
+    font-size: 0.85rem; /* Slightly reduced */
+  }
+  
+  .small-text {
+    font-size: 0.75rem; /* Slightly reduced */
+    opacity: 0.8;
+  }
+}
+
+/* Override ds-log-in component styles */
+::ng-deep {
+  .login-form {
+    width: 100%;
+    
+    .form-group {
+      margin-bottom: 12px; /* Reduced from 15px */
+    }
+    
+    .form-control {
+      height: 36px; /* Reduced from 40px */
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      width: 100%;
+      padding: 6px 12px; /* Reduced top/bottom padding */
+      font-size: 14px;
+    }
+    
+    .btn-primary {
+      background-color: #2980b9;
+      border-color: #2980b9;
+      color: white;
+      height: 36px; /* Reduced from 40px */
+      border-radius: 4px;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 8px; /* Reduced from 10px */
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+    
+    .btn-primary:hover {
+      background-color: #1c6ea4;
+      border-color: #1c6ea4;
+    }
+    
+    .alert {
+      border-radius: 4px;
+      margin-bottom: 12px; /* Reduced from 15px */
+      padding: 8px; /* Added reduced padding */
+    }
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .login-form-wrapper {
+    max-width: 90%;
+    padding: 15px; /* Further reduced for mobile */
+  }
+  
+  .court-title {
+    h2 {
+      font-size: 1.2rem;
+    }
+    
+    p {
+      font-size: 0.9rem;
+    }
+  }
+}

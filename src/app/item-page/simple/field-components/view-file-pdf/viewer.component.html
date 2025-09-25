@@ -1,0 +1,278 @@
+<div class="viewer-container">
+  <!-- File Header -->
+  <div class="file-header">
+    <span class="filename">{{ fileUrl.split('/').pop() }}</span>
+    <div class="header-buttons">
+      <button class="icon-button" (click)="goBack()"><i class="back-icon">←</i> Back</button>
+      <button class="icon-button" (click)="toggleFullScreen()" *ngIf="hasTimeAccess">
+        Open in Full Screen
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div class="content-container" style="display: flex; flex-direction: row; height: 100%;">
+
+    <!-- LEFT: Metadata -->
+    <div class="metadata-container" *ngIf="!isMetadataMinimized"
+      style="width: 300px; background: white; overflow-y: auto; border-right: 1px solid #ddd;">
+      <div class="metadata-header">
+        <span>Metadata</span>
+        <button class="icon-button panel-toggle" (click)="toggleMetadataPanel()" title="Minimize Metadata Panel"><i class="fas fa-chevron-left"></i></button>
+      </div>
+      <div class="metadata-table">
+        <table>
+          <tr>
+            <th>Metadata</th>
+            <th>Value</th>
+          </tr>
+          <tr *ngFor="let item of metadata">
+            <td>{{ item.name }}</td>
+            <td>{{ item.value }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <button *ngIf="isMetadataMinimized" class="icon-button panel-toggle minimized-left" (click)="toggleMetadataPanel()" title="Show Metadata"><i class="fas fa-chevron-right"></i></button>
+
+    <!-- CENTER: File Viewer -->
+    <div class="file-container" style="flex: 1; position: relative; overflow: hidden;">
+      <!-- Loading -->
+      <div *ngIf="isLoading || checkingPermissions" class="loading-overlay">
+        <div class="spinner-container">
+          <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+          <p class="mt-2">{{ checkingPermissions ? 'Checking permissions...' : 'Loading file...' }}</p>
+        </div>
+      </div>
+
+      <!-- Time Access Denied -->
+      <div *ngIf="!hasTimeAccess && !isLoading && !checkingPermissions" class="access-denied-container">
+        <div class="access-denied-message">
+          <h3>Access Restricted</h3>
+          <p>{{ timeAccessStatus?.message || 'Access denied at this time.' }}</p>
+          <button class="btn btn-primary mt-3" (click)="checkFilePermissions(currentBitstreamId)">Check Again</button>
+        </div>
+      </div>
+
+      <!-- PDF Viewer -->
+      <div class="pdf-container pdf-image-style" *ngIf="isPdfFile && hasTimeAccess">
+        <!-- Time Access Info Banner (always visible above toolbar) -->
+        <div *ngIf="hasTimeAccess && timeAccessStatus?.validUntil" class="access-info-banner">
+          <i class="fas fa-clock"></i>
+          ⏰ Access expires: {{ timeAccessStatus.validUntil | date:'medium' }}
+        </div>
+        <!-- PDF Toolbar/Header (matches image) -->
+        <div class="toolbar pdf-toolbar-image pdf-toolbar-header" role="toolbar" aria-label="PDF toolbar">
+          <button class="icon-button panel-toggle" (click)="toggleMetadataPanel()" [ngClass]="{'minimized': isMetadataMinimized}" title="{{ isMetadataMinimized ? 'Show Metadata' : 'Minimize Metadata Panel' }}">
+            <i class="fas" [ngClass]="isMetadataMinimized ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+          </button>
+          <div class="pdf-toolbar-center-group">
+            <button class="icon-button" (click)="maximizePdfView()" *ngIf="!isMetadataMinimized || !isCommentMinimized" title="Maximize PDF View"><i class="fas fa-expand"></i></button>
+            <button class="icon-button" (click)="restorePanels()" *ngIf="isMetadataMinimized && isCommentMinimized" title="Restore Panels"><i class="fas fa-compress"></i></button>
+            <!-- PDF toolbar controls (page nav, zoom, etc) -->
+            <div class="toolbar-left toolbar-group">
+              <div class="page-navigation" aria-label="Page navigation">
+                <button class="arrow-button up-arrow" (click)="prevPage()" [disabled]="currentPage <= 1" title="Previous Page" aria-label="Previous Page">
+                  <i class="fas fa-chevron-up"></i>
+                </button>
+                <div class="page-number-box" aria-label="Current Page">{{ currentPage }}</div>
+                <button class="arrow-button down-arrow" (click)="nextPage()" [disabled]="currentPage >= totalPages" title="Next Page" aria-label="Next Page">
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <span class="page-separator">of {{ totalPages }}</span>
+              </div>
+              <button class="icon-button" (click)="toggleSearch()" title="Search in PDF" aria-label="Search in PDF">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+            <div class="toolbar-center toolbar-group">
+              <button class="icon-button" (click)="zoomOut()" title="Zoom Out" aria-label="Zoom Out">
+                <i class="fas fa-search-minus"></i>
+              </button>
+              <span class="zoom-level">{{ zoomLevel | number:'1.0-1' }}x</span>
+              <button class="icon-button" (click)="zoomIn()" title="Zoom In" aria-label="Zoom In">
+                <i class="fas fa-search-plus"></i>
+              </button>
+            </div>
+            <div class="toolbar-right toolbar-group">
+              <button *ngIf="canPrintFile" class="icon-button" (click)="printFile()" title="Print PDF" aria-label="Print PDF">
+                <i class="fas fa-print"></i>
+              </button>
+              <button *ngIf="canDownloadFile" class="icon-button" (click)="downloadFile()" title="Download PDF" aria-label="Download PDF">
+                <i class="fas fa-download"></i>
+              </button>
+            </div>
+          </div>
+          <button class="icon-button panel-toggle" (click)="toggleCommentPanel()" [ngClass]="{'minimized': isCommentMinimized}" title="{{ isCommentMinimized ? 'Show Comments' : 'Minimize Comment Panel' }}">
+            <i class="fas" [ngClass]="isCommentMinimized ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar pdf-search-bar-image" *ngIf="isSearchVisible">
+          <div class="search-input-container">
+            <input id="pdf-search-input" [(ngModel)]="searchText" placeholder="Search in document..." (keyup.enter)="searchPdf()" aria-label="Search in document" />
+            <button (click)="searchPdf()" title="Search" aria-label="Search"><i class="fas fa-search"></i></button>
+            <button class="clear-button" (click)="clearSearch()" title="Clear search" aria-label="Clear search"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="search-navigation" *ngIf="searchResults.length > 0">
+            <span>{{ currentSearchIndex + 1 }} of {{ searchResults.length }}</span>
+            <button class="icon-button" (click)="prevSearchResult()" [disabled]="currentSearchIndex <= 0" title="Previous result" aria-label="Previous result">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="icon-button" (click)="nextSearchResult()" [disabled]="currentSearchIndex >= searchResults.length - 1" title="Next result" aria-label="Next result">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- PDF Pages Container -->
+        <div class="pdf-scroll-container pdf-scroll-image" #pdfContainer aria-label="PDF document area"></div>
+      </div>
+
+      <!-- Image Viewer -->
+      <div class="image-container" *ngIf="isImageFile && hasTimeAccess">
+        <!-- Image Toolbar -->
+        <div class="toolbar toolbarimg">
+          <div class="toolbar-left">
+            <button class="icon-button" (click)="imageZoomOut()">−</button>
+            <button class="icon-button" (click)="imageZoomIn()">+</button>
+            <span>Zoom: {{ imageZoomLevel | number:'1.0-1' }}</span>
+          </div>
+          <div class="toolbar-right">
+            <button class="icon-button" (click)="toggleImageFullScreen()">⛶</button>
+            <button class="icon-button" (click)="openImageInNewTab()">↗</button>
+            <button *ngIf="canDownloadFile" class="icon-button" (click)="downloadImage()">⬇</button>
+          </div>
+        </div>
+        
+        <!-- Image Display -->
+        <div class="pdf-scroll-container">
+          <img [src]="fileUrl" 
+               class="responsive-image" 
+               [style.transform]="'scale(' + imageZoomLevel + ')'"
+               alt="Document Image" />
+        </div>
+      </div>
+
+      <!-- Video Viewer -->
+      <div class="video-container" *ngIf="isVideoFile && hasTimeAccess">
+        <!-- Video Toolbar -->
+        <div class="toolbar toolbar-video">
+          <button class="icon-button" (click)="openVideoInNewTab()">↗</button>
+          <button *ngIf="canDownloadFile" class="icon-button" (click)="downloadVideo()">⬇</button>
+        </div>
+        
+        <!-- Video Player -->
+        <div class="pdf-scroll-container">
+          <video [src]="fileUrl" 
+                 class="responsive-video" 
+                 controls 
+                 preload="metadata"
+                 (error)="onVideoError($event)">
+            Your browser does not support the video tag.
+          </video>
+          <div *ngIf="videoError" class="video-error-message">
+            <p>⚠️ Unable to load video. Please check permissions or file format.</p>
+            <p><strong>Debug info:</strong> {{ fileUrl }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio Viewer -->
+      <div class="audio-container" *ngIf="isAudioFile && hasTimeAccess">
+        <!-- Audio Toolbar -->
+        <div class="toolbar toolbar-audio">
+          <button class="icon-button" (click)="openAudioInNewTab()">↗</button>
+          <button *ngIf="canDownloadFile" class="icon-button" (click)="downloadAudio()">⬇</button>
+        </div>
+        
+        <!-- Audio Player -->
+        <div class="pdf-scroll-container">
+          <audio [src]="fileUrl" 
+                 class="responsive-audio" 
+                 controls 
+                 preload="metadata">
+            Your browser does not support the audio tag.
+          </audio>
+        </div>
+      </div>
+
+      <!-- Permission Notices -->
+      <div *ngIf="!canDownloadFile && hasTimeAccess" class="permission-notice download-notice">
+        ⚠️ Download not permitted for this file
+      </div>
+      
+      <div *ngIf="!canPrintFile && hasTimeAccess" class="permission-notice print-notice">
+        ⚠️ Printing not permitted for this file
+      </div>
+    </div>
+
+    <!-- RIGHT: Comments Panel -->
+    <div class="comment-panel" *ngIf="!isCommentMinimized">
+      <h4>Comments</h4>
+
+      <!-- No Comments Message -->
+      <div *ngIf="comments.length === 0" class="no-comments">
+        <p style="color: #666; font-style: italic;">No comments yet.</p>
+      </div>
+
+      <!-- Comments List -->
+      <div *ngFor="let comment of comments" class="comment-box">
+        <div class="comment-header">
+          <span class="comment-author">{{ comment.commenterName || 'Anonymous' }}</span>
+          <span class="comment-date">{{ comment.createdDate | date: 'medium' }}</span>
+        </div>
+        <div class="comment-body">
+          <p>{{ comment.comment || comment.text }}</p>
+        </div>
+        
+        <!-- Comment Actions (Only for Admins) -->
+        <div class="comment-actions" *ngIf="isAdmin">
+          <button class="delete-button" 
+                  [disabled]="deletingCommentId === comment.id"
+                  (click)="confirmDelete(comment.id!)">
+            {{ deletingCommentId === comment.id ? 'Deleting...' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Add Comment Form -->
+      <div class="add-comment-box">
+        <textarea [(ngModel)]="newCommentText" 
+                  placeholder="Add comment..." 
+                  [disabled]="!isAdmin || isAddingComment"
+                  rows="3">
+        </textarea>
+        <button (click)="addComment()" 
+                [disabled]="!isAdmin || isAddingComment || !newCommentText.trim()">
+          {{ isAddingComment ? 'Adding...' : 'Add Comment' }}
+        </button>
+        
+        <!-- Admin Notice -->
+        <div *ngIf="!isAdmin" style="margin-top: 8px; font-size: 12px; color: #666; font-style: italic;">
+          Only administrators can add comments.
+        </div>
+      </div>
+    </div>
+    <button *ngIf="isCommentMinimized" class="icon-button panel-toggle minimized-right" (click)="toggleCommentPanel()" title="Show Comments"><i class="fas fa-chevron-left"></i></button>
+
+  </div>
+
+  <!-- ✅ Custom Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showDeleteConfirmation" (click)="cancelDelete()">
+    <div class="confirmation-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Confirm Delete</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this comment?</p>
+        <p class="warning-text">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cancelDelete()">Cancel</button>
+        <button class="btn-delete" (click)="confirmDeleteComment()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

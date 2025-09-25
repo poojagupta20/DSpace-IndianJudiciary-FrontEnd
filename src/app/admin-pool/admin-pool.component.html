@@ -1,0 +1,170 @@
+<div class="admin-pool">
+    <!-- Top Buttons -->
+    <div class="top-actions">
+        <button (click)="viewAcceptedSubmissions()">View Accepted Submissions</button>
+        <button (click)="getBatchInfo()">Get Batch Info</button>
+    </div>
+
+    <!-- Rejected Batches -->
+    <h2>Rejected Batches</h2>
+    <table *ngIf="rejectedTasks.length > 0; else noRejected">
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Uploader</th>
+                <th>Collection</th>
+                <th>reviewer</th>
+                <th>reviewed Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let task of rejectedTasks">
+                <td>{{ task.fileName }}</td>
+                <td>{{ task.uploader.userName }}</td>
+                <td>{{ task.collection.collectionName }}</td>
+                <td>{{ task.reviewer.userName }}</td>
+                <td>{{ task.reviewer.date | date:'short' }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <ng-template #noRejected>
+        <p>No rejected batches available.</p>
+    </ng-template>
+
+    <!-- Claimed Tasks -->
+    <h2>Claimed Tasks</h2>
+    <table *ngIf="claimedTasks.length > 0; else noClaimed">
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Uploader</th>
+                <th>Collection</th>
+                <th>Status</th>
+                <th>Uploaded Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let task of claimedTasks">
+                <td>{{ task.fileName }}</td>
+                <td>{{ task.uploader.userName }}</td>
+                <td>{{ task.collection.collectionName }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.uploader.date | date:'short' }}</td>
+                <td>
+                    <button (click)="openReviewDialog(task)">Perform Task</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <ng-template #noClaimed>
+        <p>No claimed tasks available.</p>
+    </ng-template>
+
+
+    <!-- Pooled Tasks -->
+    <h2>Pooled Tasks</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Uploader</th>
+                <th>Collection</th>
+                <th>Status</th>
+                <th>reviewer</th>
+                <th>Uploaded Date</th>
+                <th>reviewed Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let task of pooledTasks">
+                <td>{{ task.fileName }}</td>
+                <td>{{ task.uploader.userName }}</td>
+                <td>{{ task.collection.collectionName }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.reviewer.userName }}</td>
+                <td>{{ task.uploader.date | date:'short' }}</td>
+                <td>{{ task.reviewer.date | date:'short' }}</td>
+                <td><button (click)="openReviewDialog(task)">Show Task</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Review Batch Section -->
+    <div *ngIf="selectedBatch" class="review-box">
+        <h3>Reviewing Batch: {{ selectedBatch.batch }}</h3>
+        <div *ngIf="reviewLoading" class="loading-spinner">
+            Loading files, please wait...
+        </div>
+        <table *ngIf="!reviewLoading">
+            <thead>
+                <tr>
+                    <th>Case Type</th>
+                    <th>Case No</th>
+                    <th>Year</th>
+                    <th>Disposal Date</th>
+                    <th>Petitioner</th>
+                    <th>Respondent</th>
+                    <th>Item Folder</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let file of dummyFiles">
+                    <td>{{ file.metadata?.['dc.casetype'] || '-' }}</td>
+                    <td>{{ file.metadata?.['dc.title'] || '-' }}</td>
+                    <td>{{ file.metadata?.['dc.caseyear'] || '-' }}</td>
+                    <td>{{ file.metadata?.['dc.date.disposal'] || '-' }}</td>
+                    <td>{{ file.metadata?.['dc.pname'] || '-' }}</td>
+                    <td>{{ file.metadata?.['dc.rname'] || '-' }}</td>
+                    <td>{{ file.itemFolder }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="actions" *ngIf="!reviewLoading">
+            <button (click)="approve(selectedBatch.requestId)">Approve</button>
+            <button (click)="reject(selectedBatch.requestId)">Reject</button>
+            <button (click)="cancelReview()">Cancel</button>
+        </div>
+    </div>
+
+   <!-- Accepted Submissions Section -->
+   <div *ngIf="showAccepted" class="accepted-submissions">
+    <h2>Accepted Submissions</h2>
+    <table *ngIf="!viewingAcceptedBatch">
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Uploader</th>
+                <th>Collection</th>
+                <th>Reviewer</th>
+                <th>Status</th>
+                <th>Uploaded Date</th>
+                <th>Reviewed Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let accepted of acceptedSubmissions">
+                <td>{{ accepted.fileName }}</td>
+                <td>{{ accepted.uploader.userName }}</td>
+                <td>{{ accepted.collection.collectionName }}</td>
+                <td>{{ accepted.reviewer.userName }}</td>
+                <td>{{ accepted.status }}</td>
+                <td>{{ accepted.uploader.date | date:'short' }}</td>
+                <td>{{ accepted.reviewer.date | date:'short' }}</td>
+                <td><button (click)="viewFiles(accepted)">View Files</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <div *ngIf="viewingAcceptedBatch">
+        <h3>Files in Batch: {{ viewingAcceptedBatch.batch }}</h3>
+        <ul>
+            <li *ngFor="let file of viewingAcceptedBatch.files">{{ file }}</li>
+        </ul>
+        <button (click)="viewingAcceptedBatch = null">Back</button>
+    </div>
+    <button (click)="closeAcceptedView()" style="margin-top: 15px;">Close Accepted Submissions</button>
+</div>
+
+</div>

@@ -1,0 +1,148 @@
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="heading mb-0">
+      {{ mode === 'wildcard' ? 'By Wildcard Search' : 'By Proximity Search' }}
+    </h2>
+    <button class="btn btn-outline-primary" (click)="setMode(mode === 'wildcard' ? 'proximity' : 'wildcard')">
+      {{ mode === 'wildcard' ? 'By Proximity Search' : 'By Wildcard Search' }}
+    </button>
+  </div>
+  <hr class="divider" />
+
+  <div class="search-bar mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-10">
+        <ng-container *ngIf="mode === 'wildcard'; else proximityBlock">
+          <label for="wildcardQuery" class="form-label">Wildcard Query</label>
+          <input
+            type="text"
+            class="form-control"
+            id="wildcardQuery"
+            name="wildcardQuery"
+            [(ngModel)]="wildcardQuery"
+            placeholder="Enter * for all, or use ? and * as wildcards (e.g. petiti*)"
+          />
+          <small class="text-muted">Use * for any number of characters, ? for a single character. Example: <b>petiti*</b> will match 'petitioner', 'petition', etc.</small>
+        </ng-container>
+        <ng-template #proximityBlock>
+          <label for="proximityQuery" class="form-label">Proximity Query</label>
+          <input
+            type="text"
+            class="form-control"
+            id="proximityQuery"
+            name="proximityQuery"
+            [(ngModel)]="proximityQuery"
+            placeholder='e.g. "JUSTICE ROUTRAY"~3 (finds words within 3 words of each other)'
+          />
+          <small class="text-muted">Enter words in quotes followed by ~ and a number. Example: <b>"JUSTICE ROUTRAY"~3</b> finds cases where these words appear within 3 words of each other.</small>
+        </ng-template>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-secondary float-end" type="button" (click)="onSearchClick()">
+          <i class="fas fa-search"></i> Search
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label for="sortBy">Sort By:</label>
+      <select class="form-select" id="sortBy" (change)="onSortChange($event.target.value)">
+        <option value="dc.title">Case Number</option>
+        <option value="dc.casetype">Case Type</option>
+        <option value="dc.caseyear">Case Year</option>
+        <option value="dc.pname">First Petitioner</option>
+        <option value="dc.rname">First Respondent</option>
+        <option value="dc.paname">Petitioner's Advocate Name</option>
+        <option value="dc.raname">Respondent's Advocate Name</option>
+      </select>
+    </div>
+
+    <div class="search-controls">
+      <div class="sort-container">
+        <label for="sortOrder">Sort Order</label>
+        <select id="sortOrder" class="sort-select" [(ngModel)]="sortOrder" (change)="onSearchClick()">
+          <option value="ASC">Ascending</option>
+          <option value="DESC">Descending</option>
+        </select>
+      </div>
+      <div class="results-container">
+        <label for="resultsPerPage">Results per page</label>
+        <select id="resultsPerPage" class="results-select" [(ngModel)]="resultsPerPage" (change)="onSearchClick()">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-results mt-4">
+    <div class="showing-results">
+      <span>Showing results:</span>
+    </div>
+    <table class="table ">
+      <thead>
+        <tr>
+          <th>CASE TYPE</th>
+          <th>CASE NUMBER</th>
+          <th>CASE YEAR</th>
+          <th>DISTRICT</th>
+          <th>JUDGE NAME</th>
+          <th>FIRST PETITIONER</th>
+          <th>FIRST RESPONDENT</th>
+          <th>Disposal Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="(caseList$ | async) as caseList">
+          <tr *ngFor="let caseItem of caseList">
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.casetype']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.title']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.caseyear']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.district']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.contributor.author']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.pname']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.rname']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.date.disposal']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div> 

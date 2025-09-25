@@ -1,0 +1,72 @@
+@include media-breakpoint-down(lg) {
+  .container {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+
+.document-viewer {
+  height: 600px;
+  overflow: hidden;
+  
+  iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.border-right {
+  border-right: 1px solid #dee2e6;
+}
+
+.metadata-panel {
+  height: 600px;
+  overflow-y: auto;
+}
+
+/* Custom styling for the side-by-side view */
+.side-by-side-container {
+  display: flex;
+  height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .side-by-side-container {
+    flex-direction: column;
+  }
+  
+  .document-viewer, 
+  .metadata-panel {
+    height: 400px;
+  }
+}
+
+.pdf-container {
+  width: 100%;
+  height: 600px;
+  overflow: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.image-container {
+  max-width: 100%;
+  text-align: center;
+  
+  img {
+    max-width: 100%;
+    max-height: 600px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+}
+
+.download-link {
+  text-align: center;
+  padding: 20px;
+}
+
+

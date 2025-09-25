@@ -1,0 +1,85 @@
+<div class="repository-tree-container container">
+  <div class="header-section">
+    <h2>List of Communities</h2>
+    <!-- Debug button - remove this in production -->
+    <button class="btn btn-sm btn-secondary" (click)="refreshView()">Refresh View</button>
+  </div>
+
+  <div *ngIf="loading" class="loading-indicator">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <span class="loading-text">Loading repository structure...</span>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div class="tree-view">
+    <ul class="tree-root">
+      <ng-container *ngFor="let node of treeNodes; trackBy: trackByNodeId">
+        <li class="tree-node">
+          <div class="node-content" [class]="getNodeClass(node)">
+            <span class="toggle-icon" (click)="toggleNode(node, $event)" *ngIf="node.type !== 'facet' || node.children.length > 0">
+              <i class="fa" [ngClass]="node.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+            </span>
+            <span class="toggle-icon" *ngIf="node.type === 'facet' && node.children.length === 0">
+              <i class="fa fa-circle-o"></i>
+            </span>
+            <span class="node-icon">
+              <i class="fa" [ngClass]="getNodeIcon(node)"></i>
+            </span>
+            <span class="node-name" (click)="navigateToNode(node, $event)">{{ node.name }}</span>
+            
+            <!-- Loading indicator for individual nodes -->
+            <span *ngIf="node.loading" class="node-loading-inline">
+              <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </span>
+          </div>
+          
+          <!-- Pagination info for collections -->
+          <div *ngIf="node.expanded && node.type === 'collection'" 
+               class="pagination-info">
+            <small class="text-muted">{{ getPaginationInfo(node) }}</small>
+          </div>
+          
+          <ul *ngIf="node.expanded && node.children.length > 0" class="tree-children">
+            <ng-container *ngTemplateOutlet="recursiveTreeNode; context:{ nodes: node.children }"></ng-container>
+          </ul>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+</div>
+
+<!-- Recursive template for tree nodes -->
+<ng-template #recursiveTreeNode let-nodes="nodes">
+  <li *ngFor="let node of nodes; trackBy: trackByNodeId" class="tree-node">
+    <div class="node-content" [class]="getNodeClass(node)">
+      <span class="toggle-icon" (click)="toggleNode(node, $event)" *ngIf="node.type !== 'facet' || node.children.length > 0">
+        <i class="fa" [ngClass]="node.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+      </span>
+      <span class="toggle-icon" *ngIf="node.type === 'facet' && node.children.length === 0">
+        <i class="fa fa-tag"></i>
+      </span>
+      <span class="node-icon">
+        <i class="fa" [ngClass]="getNodeIcon(node)"></i>
+      </span>
+      <span class="node-name" (click)="navigateToNode(node, $event)">{{ node.name }}</span>
+      
+      <!-- Loading indicator for individual nodes -->
+      <span *ngIf="node.loading" class="node-loading-inline">
+        <div class="spinner-border spinner-border-sm" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </span>
+    </div>
+    
+    <ul *ngIf="node.expanded && node.children.length > 0" class="tree-children">
+      <ng-container *ngTemplateOutlet="recursiveTreeNode; context:{ nodes: node.children }"></ng-container>
+    </ul>
+  </li>
+</ng-template>

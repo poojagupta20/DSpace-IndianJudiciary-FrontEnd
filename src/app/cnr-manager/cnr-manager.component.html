@@ -1,0 +1,371 @@
+<div class="container p-4">
+  <!-- Search Section -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+
+          <!-- Mode selector -->
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+              <label class="form-label">Search Mode</label>
+              <select class="form-select" [(ngModel)]="searchMode">
+                <option value="cino">By CINO Number</option>
+                <option value="case">By Case (Number / Type / Year)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- CINO Search -->
+          <div *ngIf="searchMode === 'cino'" class="row g-2 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label">CINO Number</label>
+              <div class="input-group">
+                <input [(ngModel)]="searchQuery" (input)="onSearchInput()" class="form-control"
+                  placeholder="Enter CINO number…" [disabled]="loading" />
+                <button (click)="searchItems()" class="btn btn-primary">
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                  Search
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Case Search -->
+          <div *ngIf="searchMode === 'case'" class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Case Number</label>
+              <input class="form-control" [(ngModel)]="caseNumberInput" placeholder="e.g., 1234" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Case Type</label>
+              <input class="form-control" [(ngModel)]="caseTypeInput" placeholder="e.g., WP(C), CRLMC" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Case Year</label>
+              <input class="form-control" [(ngModel)]="caseYearInput" placeholder="e.g., 2024" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+              <button class="btn btn-primary w-100" (click)="searchItems()"
+                [disabled]="loading || !(caseNumberInput || caseTypeInput || caseYearInput)">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                Search
+              </button>
+              <button class="btn btn-outline-secondary" (click)="clearCaseInputs()" [disabled]="loading">
+                Clear
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Report card -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h5 class="mb-0">Report</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">From</label>
+              <input type="date" class="form-control" [(ngModel)]="reportFrom" [max]="reportTo || ''">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">To</label>
+              <input type="date" class="form-control" [(ngModel)]="reportTo" [min]="reportFrom || ''">
+            </div>
+
+            <!-- Format selector -->
+            <div class="col-md-3">
+              <label class="form-label">Format</label>
+              <select class="form-select" [(ngModel)]="reportFormat">
+                <option value="csv">CSV</option>
+                <option value="pdf">PDF</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <button class="btn btn-outline-dark w-100" (click)="downloadReport()"
+                [disabled]="reportLoading || !reportFrom || !reportTo">
+                <span *ngIf="reportLoading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ reportLoading ? 'Generating…' : 'Download Report' }}
+              </button>
+            </div>
+          </div>
+          <small class="text-muted d-block mt-2">
+            Tip: Dates are inclusive. Report contains metadata, zip status, submission & verification info.
+          </small>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Top Actions: View Cart + Generate + Post -->
+  <div class="mb-4">
+    <div class="row">
+      <div class="col-md-4">
+        <button class="btn btn-outline-dark mb-3 w-100" (click)="openCart()">
+          Add to Zip List ({{ cartCount }})
+        </button>
+      </div>
+      <!-- <div class="col-md-4">
+        <button (click)="generateFiles()" [disabled]="generating || cartCount === 0"
+          class="btn btn-success mb-3 w-100">
+          <span *ngIf="generating" class="spinner-border spinner-border-sm me-1"></span>
+          {{ generating ? 'Generating...' : 'Generate Files' }}
+        </button>
+      </div> -->
+      <div class="col-md-4">
+        <button (click)="submitAllFiles()" [disabled]="!selectedGeneratedFiles.length || submitting"
+          class="btn btn-primary mb-3 w-100">
+          <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+          {{ submitting ? 'Submitting...' : 'Post All Files' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+  <div class="card" *ngIf="searchResults.length > 0">
+    <div class="card-header">
+      <h5 class="mb-0">Search Results</h5>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th>CINO Number</th>
+            <th>File Name</th>
+            <th>Created At</th>
+            <th style="width: 160px">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let file of searchResults">
+            <td>{{ file.cino }}</td>
+            <td>{{ file.fileName }}</td>
+            <td>{{ file.createdAt | date: 'short' }}</td>
+            <td>
+              <button
+                class="btn btn-sm"
+                [ngClass]="isInCart(file) ? 'btn-secondary' : 'btn-outline-primary'"
+                (click)="addSingleToCart(file)"
+                [disabled]="isInCart(file)"
+              >
+                {{ isInCart(file) ? 'Added' : 'Add to Zip List' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- No results message -->
+  <div
+    *ngIf="
+      searchResults.length === 0 &&
+      ((searchMode === 'cino' && searchQuery) ||
+       (searchMode === 'case' && (caseNumberInput || caseTypeInput || caseYearInput)))
+    "
+    class="text-center text-muted py-4"
+  >
+    No records found.
+  </div>
+
+  <!-- Generated Files -->
+  <div class="card" *ngIf="generatedFiles.length > 0">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Generated Files</h5>
+
+      <!-- Filters + Sort -->
+      <div class="d-flex align-items-center">
+        <div class="me-3">
+          <label class="me-1">Filter:</label>
+          <select [(ngModel)]="filterSubmitted">
+            <option value="">All</option>
+            <option value="submit">Submitted</option>
+            <option value="notSubmitted">Not Submitted</option>
+          </select>
+        </div>
+
+        <div class="me-3">
+          <label class="me-1">Sort:</label>
+          <select [(ngModel)]="sortDir">
+            <option value="desc">DESC</option>
+            <option value="asc">ASC</option>
+          </select>
+        </div>
+
+        <button class="btn btn-sm btn-primary" (click)="applyFilters()">
+          Apply
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card-body p-0">
+      <table class="table table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Select</th>
+            <th>File Name</th>
+            <th>CINO Number</th>
+            <th>Created At</th>
+            <th>No. of Files</th>
+            <th>File Processing</th>
+            <th>Delivery Status</th>
+            <th>Actions</th>
+          </tr>          
+        </thead>
+        <tbody>
+          <tr *ngFor="let file of generatedFiles">
+            <td>
+              <input type="checkbox" [(ngModel)]="file.selected" (change)="onGeneratedSelectionChange()" />
+            </td>
+            <td>{{ file.fileName }}</td>
+            <td>{{ file.cinoNumber }}</td>
+            <td>{{ file.createdAt | date:'short' }}</td>
+            <td>{{ file.fileCount || '-' }}</td>
+            <td>{{ file.userFriendlyPostResponse }}</td>
+            <td>{{ file.userFriendlyCheckResponse || 'Not verified yet' }}</td>
+            <td>
+              <!-- Post / Check block -->
+              <ng-container *ngIf="!file.ackId; else checkStatusButtons" [ngSwitch]="file.status">
+                <button *ngSwitchCase="'idle'" (click)="submitFile(file)" class="btn btn-primary btn-sm">
+                  Submit
+                </button>
+                <button *ngSwitchCase="'submitting'" class="btn btn-warning btn-sm"
+                  [ngStyle]="{'background-color': '#77BFBF', 'border-color': '#5aa0a0'}" disabled>
+                  <span class="spinner-border spinner-border-sm me-1"></span> Submitting...
+                </button>
+                <button *ngSwitchCase="'submitted'" class="btn btn-success btn-sm" disabled>
+                  Submitted
+                </button>
+                <button *ngSwitchCase="'error'" class="btn btn-danger btn-sm" (click)="submitFile(file)">
+                  Retry Submit
+                </button>
+              </ng-container>
+
+              <ng-template #checkStatusButtons>
+                <ng-container [ngSwitch]="file.checkStatusState">
+                  <button *ngSwitchCase="'idle'" (click)="checkStatus(file)" class="btn btn-info btn-sm">
+                    Check Status
+                  </button>
+                  <button *ngSwitchCase="'checking'" class="btn btn-warning btn-sm"
+                    [ngStyle]="{'background-color': '#77BFBF', 'border-color': '#5aa0a0'}" disabled>
+                    <span class="spinner-border spinner-border-sm me-1"></span> Checking...
+                  </button>
+                  <button *ngSwitchCase="'checked'" class="btn btn-success btn-sm" disabled>
+                    Checked
+                  </button>
+                  <button *ngSwitchCase="'error'" class="btn btn-danger btn-sm" (click)="checkStatus(file)">
+                    Retry Check
+                  </button>
+                </ng-container>
+              </ng-template>
+
+              <!-- Delete generated zip -->
+              <button class="btn btn-outline-danger btn-sm ms-2"
+                      (click)="deleteGenerated(file)"
+                      [disabled]="file.deleting">
+                <span *ngIf="file.deleting" class="spinner-border spinner-border-sm me-1"></span>
+                Delete
+              </button>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer d-flex justify-content-center">
+      <button class="btn btn-sm btn-outline-primary me-2" (click)="loadGeneratedFiles(currentPage - 1)"
+        [disabled]="currentPage === 0">Previous</button>
+      Page {{ currentPage + 1 }} / {{ totalPages }}
+      <button class="btn btn-sm btn-outline-primary ms-2" (click)="loadGeneratedFiles(currentPage + 1)"
+        [disabled]="currentPage + 1 >= totalPages">Next</button>
+    </div>
+  </div>
+
+  <div *ngIf="generatedFiles.length === 0" class="text-center text-muted py-4">
+    No generated files found.
+  </div>
+</div>
+
+<!-- CART MODAL -->
+<div *ngIf="showCart">
+  <div class="modal-backdrop fade show" (click)="closeCart()"></div>
+
+  <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h5 class="modal-title">Cart ({{ cartCount }})</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeCart()"></button>
+        </div>
+
+        <div class="modal-body p-0">
+          <ng-container *ngIf="cartCount; else emptyCart">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 40%">File Name</th>
+                    <th style="width: 25%">CINO</th>
+                    <th style="width: 25%">Created At</th>
+                    <th style="width: 10%">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of cartView; trackBy: trackByCart">
+                    <td>{{ row.fileName }}</td>
+                    <td>{{ row.cino }}</td>
+                    <td>
+                      <span *ngIf="row.createdAt; else dash">
+                        {{ row.createdAt | date:'short' }}
+                      </span>
+                      <ng-template #dash>—</ng-template>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-danger"
+                        (click)="removeFromCart(row._raw)">
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+
+          <ng-template #emptyCart>
+            <div class="text-center text-muted py-5">
+              Your cart is empty.
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <button class="btn btn-outline-danger" (click)="clearCart()" [disabled]="!cartCount">
+            Clear Cart
+          </button>
+          <div>
+            <button class="btn btn-secondary me-2" (click)="closeCart()">Close</button>
+            <button class="btn btn-success"
+              (click)="closeCart(); generateFiles()"
+              [disabled]="!cartCount || generating">
+              <span *ngIf="generating" class="spinner-border spinner-border-sm me-1"></span>
+              {{ generating ? 'Generating…' : 'Generate Files' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /CART MODAL -->

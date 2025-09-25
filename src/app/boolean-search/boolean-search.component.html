@@ -1,0 +1,240 @@
+<div class="boolean-search-container">
+  <h2>Advanced Boolean Search</h2>
+
+  <div class="form-group">
+    <label for="collection-select" class="form-label">Search</label>
+    <select id="collection-select" [(ngModel)]="selectedCollectionId" class="form-control">
+      <option value="">All of DSpace</option>
+      <option *ngFor="let col of collections" [value]="col.id">{{ col.name }}</option>
+    </select>
+  </div>
+
+  <!-- Compact form layout -->
+  <div class="search-form-row">
+    <!-- Field Selection -->
+    <div class="form-group">
+      <label for="field-select" class="form-label">Field</label>
+      <select id="field-select" [(ngModel)]="newFilter.field" class="form-control">
+        <option *ngFor="let field of availableFields" [value]="field.value">{{ field.label }}</option>
+      </select>
+    </div>
+
+    <!-- Operator Selection -->
+    <div class="form-group">
+      <label for="operator-select" class="form-label">Operator</label>
+      <select id="operator-select" [(ngModel)]="newFilter.operator" class="form-control">
+        <option *ngFor="let op of availableOperators" [value]="op.value">{{ op.label }}</option>
+      </select>
+    </div>
+
+    <!-- Value Input -->
+    <div class="form-group">
+      <label for="value-input" class="form-label">Value</label>
+      <input id="value-input" [(ngModel)]="newFilter.value" class="form-control" [placeholder]="'e.g. Smith, 2023, Civil'" />
+    </div>
+
+    <!-- Add Button -->
+    <div class="form-group">
+      <label class="form-label">&nbsp;</label>
+      <button (click)="addFilter()" [disabled]="!newFilter.value.trim()" class="btn btn-primary">Add</button>
+    </div>
+  </div>
+
+  <!-- Current Conditions -->
+  <div *ngIf="filters.length > 0" class="conditions-row">
+    <div class="d-flex flex-wrap gap-2">
+      <span *ngFor="let filter of filters; let i = index" class="filter-chip">
+        <span>
+          {{ getFieldLabel(filter.field) }}
+          {{ getOperatorLabel(filter.operator) }}
+          "{{ filter.value }}"
+        </span>
+        <button (click)="removeFilter(i)" class="remove-btn">&times;</button>
+      </span>
+    </div>
+  </div>
+
+  <!-- Sort and Pagination Controls -->
+  <div class="controls-row">
+    <!-- Sort Controls -->
+    <div class="sort-controls">
+      <label for="sort-field" class="form-label">Sort by</label>
+      <select id="sort-field" [(ngModel)]="sortField" class="form-control" (change)="onSortChange()">
+        <option value="">-- Select field --</option>
+        <option *ngFor="let field of sortableFields" [value]="field.value">{{ field.label }}</option>
+      </select>
+    </div>
+    
+    <div class="sort-direction">
+      <label for="sort-direction" class="form-label">Order</label>
+      <select id="sort-direction" [(ngModel)]="sortDirection" class="form-control" (change)="onSortChange()">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
+    </div>
+
+    <!-- Page Size -->
+    <div class="page-size">
+      <label for="page-size" class="form-label">Results per page</label>
+      <select id="page-size" [(ngModel)]="size" class="form-control" (change)="onPageSizeChange()">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-row">
+    <button (click)="search()" [disabled]="filters.length === 0" class="btn btn-success">Search</button>
+    <button (click)="resetFilters()" class="btn btn-outline-secondary">Reset</button>
+  </div>
+</div>
+
+<!-- Results List and Pagination -->
+<div *ngIf="results$ | async as results" class="results-section">
+  <div *ngIf="results.length > 0; else noResults">
+    <!-- Results Summary -->
+    <div class="results-summary">
+      <span>Showing {{ getStartIndex() }} - {{ getEndIndex(results.length) }} of {{ totalResults }} results</span>
+    </div>
+
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th (click)="sortBy('dc.casetype')" class="sortable-header">
+            CASE TYPE
+            <span *ngIf="sortField === 'dc.casetype'" class="sort-indicator">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="sortBy('dc.title')" class="sortable-header">
+            CASE NUMBER
+            <span *ngIf="sortField === 'dc.title'" class="sort-indicator">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="sortBy('dc.caseyear')" class="sortable-header">
+            CASE YEAR
+            <span *ngIf="sortField === 'dc.caseyear'" class="sort-indicator">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="sortBy('dc.district')" class="sortable-header">
+            DISTRICT
+            <span *ngIf="sortField === 'dc.district'" class="sort-indicator">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="sortBy('dc.contributor.author')" class="sortable-header">
+            JUDGE NAME
+            <span *ngIf="sortField === 'dc.contributor.author'" class="sort-indicator">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="sortBy('dc.pname')" class="sortable-header">
+            FIRST PETITIONER
+            <span *ngIf="sortField === 'dc.pname'" class="sort-indicator">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="sortBy('dc.rname')" class="sortable-header">
+            FIRST RESPONDENT
+            <span *ngIf="sortField === 'dc.rname'" class="sort-indicator">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="sortBy('dc.date.disposal')" class="sortable-header">
+            Disposal Date
+            <span *ngIf="sortField === 'dc.date.disposal'" class="sort-indicator">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let result of results">
+          <td class="case-result-text">
+            <a [routerLink]="['/items', result.uuid]" class="case-link">
+              {{ result.metadata?.['dc.casetype']?.[0]?.value || 'N/A' }}
+            </a>
+          </td>
+          <td class="case-result-text">
+            <a [routerLink]="['/items', result.uuid]" class="case-link">
+              {{ result.metadata?.['dc.title']?.[0]?.value || 'N/A' }}
+            </a>
+          </td>
+          <td class="case-result-text">
+            <a [routerLink]="['/items', result.uuid]" class="case-link">
+              {{ result.metadata?.['dc.caseyear']?.[0]?.value || 'N/A' }}
+            </a>
+          </td>
+          <td class="case-result-text">
+            <a [routerLink]="['/items', result.uuid]" class="case-link">
+              {{ result.metadata?.['dc.district']?.[0]?.value || 'N/A' }}
+            </a>
+          </td>
+          <td class="case-result-text">
+            <a [routerLink]="['/items', result.uuid]" class="case-link">
+              {{ result.metadata?.['dc.contributor.author']?.[0]?.value || 'N/A' }}
+            </a>
+          </td>
+          <td class="case-result-text">
+            <a [routerLink]="['/items', result.uuid]" class="case-link">
+              {{ result.metadata?.['dc.pname']?.[0]?.value || 'N/A' }}
+            </a>
+          </td>
+          <td class="case-result-text">
+            <a [routerLink]="['/items', result.uuid]" class="case-link">
+              {{ result.metadata?.['dc.rname']?.[0]?.value || 'N/A' }}
+            </a>
+          </td>
+          <td class="case-result-text">
+            <a [routerLink]="['/items', result.uuid]" class="case-link">
+              {{ result.metadata?.['dc.date.disposal']?.[0]?.value || 'N/A' }}
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Enhanced Pagination Controls -->
+    <div class="pagination-controls">
+      <div class="pagination-info">
+        <span>Page {{ page + 1 }} of {{ getTotalPages() }}</span>
+      </div>
+      
+      <div class="pagination-buttons">
+        <button (click)="firstPage()" [disabled]="page === 0" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-angle-double-left"></i> First
+        </button>
+        <button (click)="prevPage()" [disabled]="page === 0" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-angle-left"></i> Previous
+        </button>
+        
+        <!-- Page Numbers -->
+        <div class="page-numbers">
+          <button *ngFor="let pageNum of getVisiblePageNumbers()" 
+                  (click)="goToPage(pageNum - 1)" 
+                  [class.active]="page === pageNum - 1"
+                  class="btn btn-sm"
+                  [class.btn-primary]="page === pageNum - 1"
+                  [class.btn-outline-primary]="page !== pageNum - 1">
+            {{ pageNum }}
+          </button>
+        </div>
+        
+        <button (click)="nextPage()" [disabled]="(page + 1) * size >= totalResults" class="btn btn-outline-primary btn-sm">
+          Next <i class="fas fa-angle-right"></i>
+        </button>
+        <button (click)="lastPage()" [disabled]="(page + 1) * size >= totalResults" class="btn btn-outline-primary btn-sm">
+          Last <i class="fas fa-angle-double-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <ng-template #noResults>
+    <div class="alert alert-info">No results found.</div>
+  </ng-template>
+</div> 

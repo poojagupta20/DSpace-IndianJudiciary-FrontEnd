@@ -1,0 +1,126 @@
+<div class="container">
+  <h2 class="heading">By Video search</h2>
+  <hr class="divider" />
+
+  <div class="search-bar mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-10">
+        <label for="description" class="form-label">Description</label>
+        <input
+          type="text"
+          class="form-control"
+          id="description"
+          name="description"
+          [(ngModel)]="freeTextQuery"
+        />
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-secondary float-end" type="button" (click)="onSearchClick()">
+          <i class="fas fa-search"></i> Search
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label for="sortBy">Sort By:</label>
+      <select class="form-select" id="sortBy" (change)="onSortChange($event.target.value)">
+        <option value="dc.title">Case Number</option>
+        <option value="dc.casetype">Case Type</option>
+        <option value="dc.caseyear">Case Year</option> 
+        <option value="dc.pname">First Petitioner</option>
+        <option value="dc.rname">First Respondent</option>
+        <option value="dc.paname">Petitioner's Advocate Name</option>
+        <option value="dc.raname">Respondent's Advocate Name</option>
+      </select>
+    </div>
+
+  <div class="search-container">
+    <div class="search-controls">
+      <div class="sort-container">
+        <label for="sortOrder">Sort Order</label>
+        <select id="sortOrder" class="sort-select" [(ngModel)]="sortOrder" (change)="onSearchClick()">
+          <option value="ASC">Ascending</option>
+          <option value="DESC">Descending</option>
+        </select>
+      </div>
+      <div class="results-container">
+        <label for="resultsPerPage">Results per page</label>
+        <select id="resultsPerPage" class="results-select" [(ngModel)]="resultsPerPage" (change)="onSearchClick()">
+          <option value="5">5</option>
+          
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-results mt-4">
+    <div class="showing-results">
+      <span>Showing results:</span>
+    </div>
+    <table class="table ">
+      <thead>
+        <tr>
+          <th>CASE NUMBER</th>
+          <th>CASE YEAR</th>
+          <th>CASE TYPE</th>
+          <th>DISTRICT</th>
+          <th>JUDGE NAME</th>
+          <th>FIRST PETITIONER</th>
+          <th>FIRST RESPONDENT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="(caseList$ | async) as caseList">
+          <tr *ngFor="let caseItem of caseList">
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.casetype']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.title']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.caseyear']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.district']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.contributor.author']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.pname']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.rname']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.date.disposal']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+          </tr>   
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>

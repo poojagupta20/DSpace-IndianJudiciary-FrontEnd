@@ -1,0 +1,149 @@
+<div class="container">
+  <h2 class="heading">By Judgement Date</h2>
+  <hr class="divider" />
+
+  <div class="date-filter-container">
+    <div class="date-label">Date of Disposal</div>
+    <div class="date-range">
+      <div class="date-input-container">
+        <label for="startDate">Start Date</label>
+        <div class="date-input-wrapper">
+          <input 
+            type="date" 
+            id="startDate" 
+            placeholder="mm/dd/yyyy" 
+            [(ngModel)]="startDate" 
+        (change)="onDateChange()" 
+        
+          />
+          <!-- <button class="calendar-button">
+            <i class="fa fa-calendar"></i>
+          </button> -->
+        </div>
+      </div>
+      <div class="date-separator">—</div>
+      <div class="date-input-container">
+        <label for="endDate">End Date</label>
+        <div class="date-input-wrapper">
+          <input 
+            type="date" 
+            id="endDate" 
+            placeholder="mm/dd/yyyy" 
+            [(ngModel)]="endDate" 
+            (change)="onDateChange()"
+     
+          />
+          <!-- <button class="calendar-button">
+            <i class="fa fa-calendar"></i>
+          </button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-container">
+    <!-- <div class="search-label">Search</div> -->
+    <div class="search-controls">
+      <div class="col-md-3">
+        <label for="sortBy">Sort By:</label>
+        <select class="form-select" id="sortBy" (change)="onSortChange($event.target.value)">
+          <option value="dc.title">Case Number</option>
+          <option value="dc.casetype">Case Type</option>
+          <option value="dc.caseyear">Case Year</option> 
+          <option value="dc.pname">First Petitioner</option>
+          <option value="dc.rname">First Respondent</option>
+          <option value="dc.paname">Petitioner's Advocate Name</option>
+          <option value="dc.raname">Respondent's Advocate Name</option>
+        </select>
+      </div>
+
+      <div class="sort-container">
+        <label for="sortOrder">Sort Order</label>
+        <select id="sortOrder" class="form-select" [(ngModel)]="sortOrder" (change)="onSortOrderChange($event.target.value)">
+          <option value="ASC">Ascending</option>
+          <option value="DESC">Descending</option>
+        </select>
+      </div>
+      
+      <div class="results-container">
+        <label for="resultsPerPage">Results per page</label>
+        <select id="resultsPerPage" class="form-select" [(ngModel)]="resultsPerPage" (change)="onResultsPerPageChange($event.target.value)">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="search-results">
+    <div class="showing-results">
+      <span>Showing 1 - 1 of 1</span>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>CASE TYPE</th>
+          <th>CASE NUMBER</th>
+          <th>CASE YEAR</th>
+          <th>DISTRICT</th>
+          <th>JUDGE NAME</th>
+          <th>FIRST PETITIONER</th>
+          <th>FIRST RESPONDENT</th>
+          <th>Disposal Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="(caseList$ | async) as caseList">
+          <tr *ngFor="let caseItem of caseList">
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.casetype']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.title']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.caseyear']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.district']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.contributor.author']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.pname']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.rname']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+            <td class="case-result-text">
+              <a [routerLink]="['/items', caseItem.uuid]" class="case-link">
+                {{ caseItem.metadata?.['dc.date.disposal']?.[0]?.value || 'N/A' }}
+              </a>
+            </td>
+          </tr>   
+        </ng-container>
+      </tbody>
+    </table>
+    
+  </div>
+</div>
+
